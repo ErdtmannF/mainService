@@ -1,4 +1,4 @@
-package de.erdtmann.soft.mainService.pv.modbus;
+package de.erdtmann.soft.mainservice.pv.modbus;
 
 import java.io.IOException;
 
@@ -7,9 +7,9 @@ import javax.enterprise.context.ApplicationScoped;
 
 import org.jboss.logging.Logger;
 
-import de.erdtmann.soft.mainService.exceptions.PvException;
-import de.erdtmann.soft.mainService.pv.modbus.utils.ModbusRegister;
-import de.erdtmann.soft.mainService.pv.modbus.utils.PvConstants;
+import de.erdtmann.soft.mainservice.exceptions.PvException;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.ModbusRegister;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.PvConstants;
 import de.re.easymodbus.exceptions.ModbusException;
 import de.re.easymodbus.modbusclient.ModbusClient;
 

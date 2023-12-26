@@ -1,4 +1,4 @@
-package de.erdtmann.soft.mainService.exceptions;
+package de.erdtmann.soft.mainservice.exceptions;
 
 public class PvException extends Exception {
 

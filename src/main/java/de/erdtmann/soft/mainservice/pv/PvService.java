@@ -1,15 +1,15 @@
-package de.erdtmann.soft.mainService.pv;
+package de.erdtmann.soft.mainservice.pv;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
-import de.erdtmann.soft.mainService.pv.modbus.PvModbusClient;
-import de.erdtmann.soft.mainService.pv.modbus.utils.BatterieFloatRegister;
-import de.erdtmann.soft.mainService.pv.modbus.utils.NetzFloatRegister;
-import de.erdtmann.soft.mainService.pv.modbus.utils.PvFloatRegister;
-import de.erdtmann.soft.mainService.pv.modbus.utils.TotalVerbrauchFloatRegister;
-import de.erdtmann.soft.mainService.pv.modbus.utils.AktuellVerbrauchFloatRegister;
-import de.erdtmann.soft.mainService.exceptions.PvException;
+import de.erdtmann.soft.mainservice.exceptions.PvException;
+import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.AktuellVerbrauchFloatRegister;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.BatterieFloatRegister;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.NetzFloatRegister;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.PvFloatRegister;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.TotalVerbrauchFloatRegister;
 import de.erdtmann.soft.utils.pv.PvDaten;
 import de.erdtmann.soft.utils.pv.model.DcDaten;
 import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;

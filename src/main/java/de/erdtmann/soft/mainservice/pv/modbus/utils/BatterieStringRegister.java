@@ -1,21 +1,19 @@
-package de.erdtmann.soft.mainService.pv.modbus.utils;
+package de.erdtmann.soft.mainservice.pv.modbus.utils;
 
-public enum InverterStringRegister implements ModbusRegister {
+public enum BatterieStringRegister implements ModbusRegister {
 
-	NAME(768, null, 32),
-	NR(800, null, 32),
-	ARTIKEL_NR(6, null, 8),
-	SERIEN_NR(14, null, 16);
-
+	HERSTELLER(517, null, 8);
+	
 	private int addr;
 	private String einheit;
 	private int anzahl;
 	
-	InverterStringRegister(int addr, String einheit, int anzahl){
+	BatterieStringRegister(int addr, String einheit, int anzahl){
 		this.addr = addr;
 		this.einheit = einheit;
 		this.anzahl = anzahl;
 	}
+
 	
 	public int getAddr() {
 		return addr;

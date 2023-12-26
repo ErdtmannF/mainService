@@ -1,4 +1,4 @@
-package de.erdtmann.soft.mainService.pv.modbus.utils;
+package de.erdtmann.soft.mainservice.pv.modbus.utils;
 
 public enum PvFloatRegister implements ModbusRegister {
 
