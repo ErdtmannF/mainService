@@ -6,8 +6,11 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.jboss.logging.Logger;
+
 import de.erdtmann.soft.mainservice.exceptions.PvException;
 import de.erdtmann.soft.mainservice.pv.PvService;
+import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
 import de.erdtmann.soft.utils.pv.PvDaten;
 import de.erdtmann.soft.utils.pv.model.DcDaten;
 import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
@@ -17,6 +20,8 @@ import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
 @Produces({ "application/json" })
 public class pvRestService {
 
+	Logger log = Logger.getLogger(PvModbusClient.class);
+	
 	@Inject
 	PvService pvService;
 	
@@ -27,8 +32,7 @@ public class pvRestService {
 		try {
 			pv =  pvService.ladePvHomeDaten(999,999,999,999,999);
 		} catch (PvException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Fehler beim holen der Pv Daten." + e.getMessage());
 		}
 		return pv;	
 	}
@@ -40,8 +44,7 @@ public class pvRestService {
 		try {
 			verbrauch = pvService.ladeVerbrauchDaten();
 		} catch (PvException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Fehler beim holen der Verbrauchsdaten." + e.getMessage());
 		}
 		return verbrauch;
 	}
@@ -53,8 +56,7 @@ public class pvRestService {
 		try {
 			dcDaten = pvService.ladeDcDaten();
 		} catch (PvException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Fehler beim holen der DC Daten." + e.getMessage());
 		}
 		return dcDaten;
 	}
