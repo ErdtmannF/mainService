@@ -93,6 +93,12 @@
 	</repositories>
 	<dependencies>
 		<dependency>
+			<groupId>de.erdtmann.soft</groupId>
+			<artifactId>utilsPackage</artifactId>
+			<version>1.0</version>
+		</dependency>
+
+		<dependency>
 			<groupId>javax</groupId>
 			<artifactId>javaee-api</artifactId>
 			<version>8.0</version>
