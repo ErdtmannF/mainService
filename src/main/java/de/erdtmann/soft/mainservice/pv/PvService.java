@@ -20,8 +20,8 @@ public class PvService {
 	@Inject
 	PvModbusClient pvModbusClient;
 
-	final static String RECHTS = "rechts";
-	final static String LINKS = "links";
+	static final String RECHTS = "rechts";
+	static final String LINKS = "links";
 	
 	float leistung;
 	float battStand;
