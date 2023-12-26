@@ -30,9 +30,7 @@ public class PvModbusClient {
 	}
 
 	private int[] holeHoldingRegister(ModbusRegister register) throws IOException, ModbusException {
-		
 		return modbus.ReadHoldingRegisters(register.getAddr(), register.getAnzahl());
-		
 	}
 
 	public String holeModbusRegisterString(ModbusRegister register) throws PvException {
@@ -54,7 +52,7 @@ public class PvModbusClient {
 			try {
 				modbus.Disconnect();
 			} catch (IOException e) {
-				throw new PvException("Fehler beim Schlieﬂen der Modbus-Verbindung: " + e.getMessage());
+				log.error("Fehler beim Schliessen der Modbus-Verbindung: " + e.getMessage() );
 			}
 		}
 
@@ -76,7 +74,7 @@ public class PvModbusClient {
 			try {
 				modbus.Disconnect();
 			} catch (Exception e) {
-				throw new PvException("Fehler beim Schlieﬂen der Modbus-Verbindung: " + e.getMessage());
+				log.error("Fehler beim Schliessen der Modbus-Verbindung: " + e.getMessage());
 			}
 		}
 
