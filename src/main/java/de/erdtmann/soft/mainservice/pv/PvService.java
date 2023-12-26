@@ -20,14 +20,25 @@ public class PvService {
 	@Inject
 	PvModbusClient pvModbusClient;
 
-	public PvDaten ladePvHomeDaten() throws PvException {
-		float leistung = 999;
-		float battStand = 999;
-		String battRichtung = "rechts";
-		float battLeistung = 999;
-		float home = 999;
-		float netz = 999;
-		String netzRichtung = "links";
+	final static String RECHTS = "rechts";
+	final static String LINKS = "links";
+	
+	float leistung;
+	float battStand;
+	String battRichtung = RECHTS;
+	float battLeistung;
+	float home;
+	float netz;
+	String netzRichtung = LINKS;
+
+	
+	public PvDaten ladePvHomeDaten(float leistung, float battStand, float battLeistung, float home, float netz) throws PvException {
+		
+		this.leistung = leistung;
+		this.battStand = battStand;
+		this.battLeistung = battLeistung;
+		this.home = home;
+		this.netz = netz;
 
 		if (pvModbusClient != null) {
 			float pv1 = pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_W_1);
@@ -40,24 +51,22 @@ public class PvService {
 			float battSpannung = pvModbusClient.holeModbusRegisterFloat(BatterieFloatRegister.BATT_SPANNUNG);
 			battLeistung = battStrom * battSpannung;
 			if (battLeistung > 0) {
-				battRichtung = "rechts";
+				battRichtung = RECHTS;
 			} else {
-				battRichtung = "links";
+				battRichtung = LINKS;
 			}
 
-			float verbrauchBatt = pvModbusClient
-					.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBRAUCH_VON_BAT);
+			float verbrauchBatt = pvModbusClient.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBRAUCH_VON_BAT);
 			float verbrauchPv = pvModbusClient.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBRAUCH_VON_PV);
-			float verbrauchGrid = pvModbusClient
-					.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBAUCH_VON_NETZ);
+			float verbrauchGrid = pvModbusClient.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBAUCH_VON_NETZ);
 			home = verbrauchBatt + verbrauchGrid + verbrauchPv;
 
 			netz = pvModbusClient.holeModbusRegisterFloat(NetzFloatRegister.GRID_LEISTUNG);
 			if (netz > 0) {
-				netzRichtung = "links";
+				netzRichtung = LINKS;
 
 			} else {
-				netzRichtung = "rechts";
+				netzRichtung = RECHTS;
 			}
 		}
 		PvDaten pvDaten = new PvDaten(leistung, battStand, battRichtung, battLeistung, home, netz, netzRichtung);

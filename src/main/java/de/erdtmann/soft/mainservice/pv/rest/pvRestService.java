@@ -25,7 +25,7 @@ public class pvRestService {
 	public PvDaten getHomeDaten() {
 		PvDaten pv = null;
 		try {
-			pv =  pvService.ladePvHomeDaten();
+			pv =  pvService.ladePvHomeDaten(999,999,999,999,999);
 		} catch (PvException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
