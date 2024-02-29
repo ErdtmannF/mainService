@@ -67,6 +67,8 @@ public class PoolService {
 	public void poolSteuerung() {
 		ladeKonfiguration();
 		
+		log.info("Pool Automatik: " + isPoolAutomatikEin());
+		
 		if (isPoolAutomatikEin()) {
 			try {
 				// PV Daten holen
