@@ -10,7 +10,6 @@ import org.jboss.logging.Logger;
 
 import de.erdtmann.soft.mainservice.exceptions.PvException;
 import de.erdtmann.soft.mainservice.pv.PvService;
-import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
 import de.erdtmann.soft.utils.pv.PvDaten;
 import de.erdtmann.soft.utils.pv.model.DcDaten;
 import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
@@ -20,7 +19,7 @@ import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
 @Produces({ "application/json" })
 public class pvRestService {
 
-	Logger log = Logger.getLogger(PvModbusClient.class);
+	Logger log = Logger.getLogger(pvRestService.class);
 	
 	@Inject
 	PvService pvService;

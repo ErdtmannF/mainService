@@ -1,10 +1,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
 	<modelVersion>4.0.0</modelVersion>
+	
 	<groupId>de.erdtmann.soft</groupId>
 	<artifactId>mainService</artifactId>
 	<version>1.0.0</version>
 	<packaging>war</packaging>
 	<name>Main Service</name>
+	
 	<properties>
 		<sonar.organization>erdtmannf</sonar.organization>
 		<sonar.host.url>https://sonarcloud.io</sonar.host.url>
@@ -15,6 +18,7 @@
 		<sonar.jacoco.reportPath>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPath>
 		<sonar.language>java</sonar.language>
 	</properties>
+	
 	<build>
 		<plugins>
 			<plugin>
@@ -52,6 +56,37 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>org.wildfly.plugins</groupId>
+				<artifactId>wildfly-maven-plugin</artifactId>
+				<version>4.2.1.Final</version>
+				<configuration>
+					<id>wildfly-srv</id>
+					<username>wildfly</username>
+					<password>s36.182c1h4v</password>
+					<hostname>ubuntuserver</hostname>
+					<port>9990</port>
+					<server-args>
+						<server-arg>-Djboss.server.base.dir=/opt/WildFly/standalone/</server-arg>
+					</server-args>
+				</configuration>
+				<executions>
+					<execution>
+						<id>deploy</id>
+						<phase>install</phase>
+						<goals>
+							<goal>deploy</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>undeploy</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>undeploy</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 		<extensions>
 			<extension>
@@ -61,46 +96,6 @@
 			</extension>
 		</extensions>
 	</build>
-	<profiles>
-		<profile>
-			<id>wildfly</id>
-			<build>
-				<plugins>
-					<!-- The WildFly plugin deploys your war to a local WildFly container -->
-					<!-- To use, run: mvn package wildfly:deploy -->
-					<plugin>
-						<groupId>org.wildfly.plugins</groupId>
-						<artifactId>wildfly-maven-plugin</artifactId>
-						<version>4.2.1.Final</version>
-						<configuration>
-							<id>wildfly-srv</id>
-							<hostname>ubuntuserver</hostname>
-							<port>9990</port>
-							<server-args>
-								<server-arg>-Djboss.server.base.dir=/opt/WildFly/standalone/</server-arg>
-							</server-args>
-						</configuration>
-						<executions>
-							<execution>
-								<id>deploy</id>
-								<phase>install</phase>
-								<goals>
-									<goal>deploy</goal>
-								</goals>
-							</execution>
-							<execution>
-								<id>undeploy</id>
-								<phase>clean</phase>
-								<goals>
-									<goal>undeploy</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 	<repositories>
 		<repository>
 			<id>in-project</id>

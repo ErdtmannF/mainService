@@ -1,15 +1,17 @@
 package de.erdtmann.soft.mainservice.pv;
 
+import java.time.LocalDateTime;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 
+import org.jboss.logging.Logger;
+
 import de.erdtmann.soft.mainservice.exceptions.PvException;
+import de.erdtmann.soft.mainservice.pv.entities.BattLadungE;
+import de.erdtmann.soft.mainservice.pv.entities.LeistungE;
 import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
-import de.erdtmann.soft.mainservice.pv.modbus.utils.AktuellVerbrauchFloatRegister;
-import de.erdtmann.soft.mainservice.pv.modbus.utils.BatterieFloatRegister;
-import de.erdtmann.soft.mainservice.pv.modbus.utils.NetzFloatRegister;
-import de.erdtmann.soft.mainservice.pv.modbus.utils.PvFloatRegister;
-import de.erdtmann.soft.mainservice.pv.modbus.utils.TotalVerbrauchFloatRegister;
+import de.erdtmann.soft.mainservice.pv.modbus.utils.ModbusFloatRegister;
 import de.erdtmann.soft.utils.pv.PvDaten;
 import de.erdtmann.soft.utils.pv.model.DcDaten;
 import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
@@ -17,8 +19,13 @@ import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
 @ApplicationScoped
 public class PvService {
 
+	Logger log = Logger.getLogger(PvService.class);
+	
 	@Inject
 	PvModbusClient pvModbusClient;
+	
+	@Inject
+	PvRepository pvRepo;
 
 	static final String RECHTS = "rechts";
 	static final String LINKS = "links";
@@ -31,6 +38,86 @@ public class PvService {
 	float netz;
 	String netzRichtung = LINKS;
 
+	public void speichereDaten() throws PvException {
+		
+		if (pvModbusClient != null) {
+			LocalDateTime zeit = LocalDateTime.now();
+
+			float verbrauchVonBatt = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_BAT); 
+			float verbrauchVonPv = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_PV);
+			float verbrauchVonNetz = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_NETZ); 
+			float pvString1 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_1);
+			float pvString2 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_2);
+			float battLadeStand = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STAND);
+			
+			LeistungE verbrauchBatt = LeistungE.builder()
+												.withTyp(1)
+												.withWert((verbrauchVonBatt < 0) ? 0 : verbrauchVonBatt)
+												.withZeit(zeit)
+												.build();
+	
+			LeistungE verbrauchPv = LeistungE.builder()
+												.withTyp(2)
+												.withWert((verbrauchVonPv < 0) ? 0 : verbrauchVonPv)
+												.withZeit(zeit)
+												.build();
+	
+			LeistungE verbrauchGrid = LeistungE.builder()
+												.withTyp(3)
+												.withWert((verbrauchVonNetz < 0) ? 0 : verbrauchVonNetz)
+												.withZeit(zeit)
+												.build();
+	
+			LeistungE pvLeistung1 = LeistungE.builder()
+												.withTyp(4)
+												.withWert((pvString1 < 0) ? 0 : pvString1)
+												.withZeit(zeit)
+												.build();
+			
+			LeistungE pvLeistung2 = LeistungE.builder()
+												.withTyp(5)
+												.withWert((pvString2 < 0) ? 0 : pvString2)
+												.withZeit(zeit)
+												.build();
+			
+			LeistungE pvLeistung = LeistungE.builder()
+												.withTyp(6)
+												.withWert(((pvString1 + pvString2) < 0) ? 0 : (pvString1 + pvString2))
+												.withZeit(zeit)
+												.build();
+			
+			LeistungE pvOhneVerbrauch = LeistungE.builder()
+												.withTyp(7)
+												.withWert((((pvString1 + pvString2) - verbrauchVonPv) < 0) ? 0 : ((pvString1 + pvString2) - verbrauchVonPv))
+												.withZeit(zeit)
+												.build();
+	
+			LeistungE hausverbrauchGesamt = LeistungE.builder()
+												.withTyp(8)
+												.withWert(verbrauchVonBatt + verbrauchVonPv + ((verbrauchVonNetz < 0) ? 0 : verbrauchVonNetz))
+												.withZeit(zeit)
+												.build();
+	
+			
+			pvRepo.speichereLeistung(verbrauchPv);
+			pvRepo.speichereLeistung(verbrauchBatt);
+			pvRepo.speichereLeistung(verbrauchGrid);
+			pvRepo.speichereLeistung(pvLeistung1);
+			pvRepo.speichereLeistung(pvLeistung2);
+			pvRepo.speichereLeistung(pvLeistung);
+			pvRepo.speichereLeistung(pvOhneVerbrauch);
+			pvRepo.speichereLeistung(hausverbrauchGesamt);
+			
+			BattLadungE battLadung = BattLadungE.builder()
+												.withWert(battLadeStand)
+												.withZeit(zeit)
+												.build();
+			
+			pvRepo.speichereBattLadung(battLadung);
+			
+			log.info("PV Daten wurden gespeichert");
+		}
+	}
 	
 	public PvDaten ladePvHomeDaten(float leistung, float battStand, float battLeistung, float home, float netz) throws PvException {
 		
@@ -41,14 +128,14 @@ public class PvService {
 		this.netz = netz;
 
 		if (pvModbusClient != null) {
-			float pv1 = pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_W_1);
-			float pv2 = pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_W_2);
+			float pv1 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_1);
+			float pv2 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_2);
 			leistung = pv1 + pv2;
 
-			battStand = pvModbusClient.holeModbusRegisterFloat(BatterieFloatRegister.BATT_STAND);
+			battStand = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STAND);
 
-			float battStrom = pvModbusClient.holeModbusRegisterFloat(BatterieFloatRegister.BATT_STROM);
-			float battSpannung = pvModbusClient.holeModbusRegisterFloat(BatterieFloatRegister.BATT_SPANNUNG);
+			float battStrom = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STROM);
+			float battSpannung = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_SPANNUNG);
 			battLeistung = battStrom * battSpannung;
 			if (battLeistung > 0) {
 				battRichtung = RECHTS;
@@ -56,12 +143,12 @@ public class PvService {
 				battRichtung = LINKS;
 			}
 
-			float verbrauchBatt = pvModbusClient.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBRAUCH_VON_BAT);
-			float verbrauchPv = pvModbusClient.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBRAUCH_VON_PV);
-			float verbrauchGrid = pvModbusClient.holeModbusRegisterFloat(AktuellVerbrauchFloatRegister.VERBAUCH_VON_NETZ);
+			float verbrauchBatt = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_BAT);
+			float verbrauchPv = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_PV);
+			float verbrauchGrid = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_NETZ);
 			home = verbrauchBatt + verbrauchGrid + verbrauchPv;
 
-			netz = pvModbusClient.holeModbusRegisterFloat(NetzFloatRegister.GRID_LEISTUNG);
+			netz = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.GRID_LEISTUNG);
 			if (netz > 0) {
 				netzRichtung = LINKS;
 
@@ -79,26 +166,26 @@ public class PvService {
 		
 		if (pvModbusClient != null) {
 		
-			verbrauchDaten.setTotalVonBatt(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_VON_BATT));
-			verbrauchDaten.setTotalVonNetz(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_VON_NETZ));
-			verbrauchDaten.setTotalVonPv(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_VON_PV));
-			verbrauchDaten.setTotalVerbrauch(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_VERBRAUCH));
-			verbrauchDaten.setTotalVerbrauchRate(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_VERBRAUCH_RATE));
-			verbrauchDaten.setWorktime(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.WORKTIME));
-			verbrauchDaten.setTotalErtrag(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_ERTRAG));
-			verbrauchDaten.setTaeglicherErtrag(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TAEGLICHER_ERTRAG));
-			verbrauchDaten.setJaehrlicherErtrag(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.JAEHRLICHER_ERTRAG));
-			verbrauchDaten.setMonatlicherErtrag(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.MONATLICHER_ERTRAG));
-			verbrauchDaten.setDcZuBatt(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.DC_ZU_BATT));
-			verbrauchDaten.setDcVonBatt(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.DC_VON_BATT));
-			verbrauchDaten.setAcZuBatt(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.AC_ZU_BATT));
-			verbrauchDaten.setBattZuNetz(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.BATT_ZU_NETZ));
-			verbrauchDaten.setNetzZuBatt(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.NETZ_ZU_BATT));
-			verbrauchDaten.setSumPvInputs(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.SUM_PV_INPUTS));
-			verbrauchDaten.setTotalDcVonPv1(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_DC_VON_PV1));
-			verbrauchDaten.setTotalDcVonPv2(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_DC_VON_PV2));
-			verbrauchDaten.setTotalDcVonPv3(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.TOTAL_DC_VON_PV3));
-			verbrauchDaten.setAcZuNetz(pvModbusClient.holeModbusRegisterFloat(TotalVerbrauchFloatRegister.AC_ZU_NETZ));
+			verbrauchDaten.setTotalVonBatt(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VON_BATT));
+			verbrauchDaten.setTotalVonNetz(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VON_NETZ));
+			verbrauchDaten.setTotalVonPv(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VON_PV));
+			verbrauchDaten.setTotalVerbrauch(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VERBRAUCH));
+			verbrauchDaten.setTotalVerbrauchRate(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VERBRAUCH_RATE));
+			verbrauchDaten.setWorktime(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.INVERTER_LAUFZEIT));
+			verbrauchDaten.setTotalErtrag(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_ERTRAG));
+			verbrauchDaten.setTaeglicherErtrag(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TAEGLICHER_ERTRAG));
+			verbrauchDaten.setJaehrlicherErtrag(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.JAEHRLICHER_ERTRAG));
+			verbrauchDaten.setMonatlicherErtrag(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.MONATLICHER_ERTRAG));
+			verbrauchDaten.setDcZuBatt(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_ZU_BATT));
+			verbrauchDaten.setDcVonBatt(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_VON_BATT));
+			verbrauchDaten.setAcZuBatt(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.AC_ZU_BATT));
+			verbrauchDaten.setBattZuNetz(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_ZU_NETZ));
+			verbrauchDaten.setNetzZuBatt(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.NETZ_ZU_BATT));
+			verbrauchDaten.setSumPvInputs(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.SUM_PV_INPUTS));
+			verbrauchDaten.setTotalDcVonPv1(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_DC_VON_PV1));
+			verbrauchDaten.setTotalDcVonPv2(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_DC_VON_PV2));
+			verbrauchDaten.setTotalDcVonPv3(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_DC_VON_PV3));
+			verbrauchDaten.setAcZuNetz(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.AC_ZU_NETZ));
 			
 		}
 		return verbrauchDaten;
@@ -110,14 +197,14 @@ public class PvService {
 		
 		if (pvModbusClient != null) {
 		
-			dcDaten.setTotalDcPower(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.TOTAL_DC_POWER));
-			dcDaten.setDcA1(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_A_1));
-			dcDaten.setDcW1(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_W_1));
-			dcDaten.setDcV1(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_V_1));
-			dcDaten.setDcA2(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_A_2));
-			dcDaten.setDcW2(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_W_2));
-			dcDaten.setDcV2(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.DC_V_2));
-			dcDaten.setSumDcPower(pvModbusClient.holeModbusRegisterFloat(PvFloatRegister.SUM_DC_POWER));
+			dcDaten.setTotalDcPower(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_DC_POWER));
+			dcDaten.setDcA1(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_A_1));
+			dcDaten.setDcW1(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_1));
+			dcDaten.setDcV1(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_V_1));
+			dcDaten.setDcA2(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_A_2));
+			dcDaten.setDcW2(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_2));
+			dcDaten.setDcV2(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_V_2));
+			dcDaten.setSumDcPower(pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.SUM_DC_POWER));
 			
 		}
 		return dcDaten;

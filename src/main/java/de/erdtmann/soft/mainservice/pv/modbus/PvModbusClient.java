@@ -22,7 +22,9 @@ public class PvModbusClient {
 
 	@PostConstruct
 	private void init() {
-
+		log.info("Inverter URL: " + PvConstants.INVERTER_URL);
+		log.info("Inverter Port: " + PvConstants.INVERTER_PORT);
+		log.info("Inverter UnitId: " + PvConstants.INVERTER_UNIT_ID);
 		// Modbus initialisieren
 		modbus = new ModbusClient(PvConstants.INVERTER_URL, PvConstants.INVERTER_PORT);
 		// UnitID dem Client mitteilen
