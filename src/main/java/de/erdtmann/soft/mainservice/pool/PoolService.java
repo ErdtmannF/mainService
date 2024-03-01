@@ -5,6 +5,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
@@ -22,18 +23,18 @@ import de.erdtmann.soft.utils.pool.Heizung;
 import de.erdtmann.soft.utils.pool.Pumpe;
 import de.erdtmann.soft.utils.pv.PvDaten;
 
-@RequestScoped
+@ApplicationScoped
 public class PoolService {
 
 	Logger log = Logger.getLogger(PoolService.class);
 
-//	@Inject
+	@Inject
 	private CoreRepository coreRepo;
 
-//	@Inject
+	@Inject
 	private PoolPiService poolPi;
 
-//	@Inject
+	@Inject
 	private PvService pvService;
 
 	private Map<KonfigNames, KonfigurationE> konfiguration;
@@ -44,14 +45,6 @@ public class PoolService {
 	private static final String WERT_AUS = "aus";
 	private static final int SLEEP_TIME = 30000;
 
-	@Inject
-	public PoolService(CoreRepository coreRepo,PoolPiService poolPi,PvService pvService) {
-		this.coreRepo = coreRepo;
-		this.poolPi = poolPi;
-		this.pvService = pvService;
-		ladeKonfiguration();
-	}
-	
 	
 	public void ladeKonfiguration() {
 		List<KonfigurationE> konfigDBWerte = coreRepo.ladeKonfiguration();
@@ -73,6 +66,7 @@ public class PoolService {
 	}
 
 	public void poolSteuerung() {
+		ladeKonfiguration();
 		
 		log.info("Pool Automatik: " + isPoolAutomatikEin());
 		
