@@ -17,12 +17,19 @@ import de.erdtmann.soft.utils.pv.model.VerbrauchDaten;
 @Path("/pv")
 @Consumes({ "application/json" })
 @Produces({ "application/json" })
-public class pvRestService {
+public class PvRestService {
 
-	Logger log = Logger.getLogger(pvRestService.class);
+	Logger log = Logger.getLogger(PvRestService.class);
+	
+	private PvService pvService;
+	
+	public PvRestService() { }
 	
 	@Inject
-	PvService pvService;
+	public PvRestService(PvService pvService) {
+		this.pvService = pvService;
+	}
+	
 	
 	@GET
 	@Path("/pvDaten")

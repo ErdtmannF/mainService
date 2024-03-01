@@ -58,49 +58,49 @@ public class PvService {
 			
 			LeistungE verbrauchBatt = LeistungE.builder()
 												.withTyp(1)
-												.withWert((verbrauchVonBatt < 0) ? 0 : verbrauchVonBatt)
+												.withWert(checkWert(verbrauchVonBatt))
 												.withZeit(zeit)
 												.build();
 	
 			LeistungE verbrauchPv = LeistungE.builder()
 												.withTyp(2)
-												.withWert((verbrauchVonPv < 0) ? 0 : verbrauchVonPv)
+												.withWert(checkWert(verbrauchVonPv))
 												.withZeit(zeit)
 												.build();
 	
 			LeistungE verbrauchGrid = LeistungE.builder()
 												.withTyp(3)
-												.withWert((verbrauchVonNetz < 0) ? 0 : verbrauchVonNetz)
+												.withWert(checkWert(verbrauchVonNetz))
 												.withZeit(zeit)
 												.build();
 	
 			LeistungE pvLeistung1 = LeistungE.builder()
 												.withTyp(4)
-												.withWert((pvString1 < 0) ? 0 : pvString1)
+												.withWert(checkWert(pvString1))
 												.withZeit(zeit)
 												.build();
 			
 			LeistungE pvLeistung2 = LeistungE.builder()
 												.withTyp(5)
-												.withWert((pvString2 < 0) ? 0 : pvString2)
+												.withWert(checkWert(pvString2))
 												.withZeit(zeit)
 												.build();
 			
 			LeistungE pvLeistung = LeistungE.builder()
 												.withTyp(6)
-												.withWert(((pvString1 + pvString2) < 0) ? 0 : (pvString1 + pvString2))
+												.withWert(checkWert(pvString1 + pvString2))
 												.withZeit(zeit)
 												.build();
 			
 			LeistungE pvOhneVerbrauch = LeistungE.builder()
 												.withTyp(7)
-												.withWert((((pvString1 + pvString2) - verbrauchVonPv) < 0) ? 0 : ((pvString1 + pvString2) - verbrauchVonPv))
+												.withWert(checkWert((pvString1 + pvString2) - verbrauchVonPv))
 												.withZeit(zeit)
 												.build();
 	
 			LeistungE hausverbrauchGesamt = LeistungE.builder()
 												.withTyp(8)
-												.withWert(verbrauchVonBatt + verbrauchVonPv + ((verbrauchVonNetz < 0) ? 0 : verbrauchVonNetz))
+												.withWert(checkWert(verbrauchVonBatt) + checkWert(verbrauchVonPv) + checkWert(verbrauchVonNetz))
 												.withZeit(zeit)
 												.build();
 	
@@ -123,6 +123,10 @@ public class PvService {
 			
 			log.info("PV Daten wurden gespeichert");
 		}
+	}
+
+	private float checkWert(float wert) {
+		return (wert < 0) ? 0 : wert;
 	}
 	
 	public PvDaten ladePvHomeDaten(float leistung, float battStand, float battLeistung, float home, float netz) throws PvException {
@@ -162,9 +166,8 @@ public class PvService {
 				this.netzRichtung = RECHTS;
 			}
 		}
-		PvDaten pvDaten = new PvDaten(this.leistung, this.battStand, this.battRichtung, this.battLeistung, this.home, this.netz, this.netzRichtung);
+		return new PvDaten(this.leistung, this.battStand, this.battRichtung, this.battLeistung, this.home, this.netz, this.netzRichtung);
 		
-		return pvDaten;
 	}
 
 	public VerbrauchDaten ladeVerbrauchDaten() throws PvException {

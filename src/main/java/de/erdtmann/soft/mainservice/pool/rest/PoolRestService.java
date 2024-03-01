@@ -17,9 +17,16 @@ import de.erdtmann.soft.mainservice.pool.PoolService;
 @Produces({ "application/json" })
 public class PoolRestService {
 
-	@Inject
-	PoolService poolService;
+	private PoolService poolService;
 
+	public PoolRestService() { }
+	
+	@Inject
+	public PoolRestService(PoolService poolService) {
+		this.poolService = poolService;
+	}
+	
+	
 	@GET
 	@Path("/konfig")
 	public PoolKonfig getPoolKonfig() {
