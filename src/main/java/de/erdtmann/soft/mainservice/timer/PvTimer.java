@@ -15,8 +15,14 @@ public class PvTimer {
 
 	Logger log = Logger.getLogger(PvTimer.class);
 	
+	private PvService pvService;
+	
+	PvTimer() { }
+	
 	@Inject
-	PvService pvService;
+	PvTimer(PvService pvService) {
+		this.pvService = pvService;
+	}
 	
 	@Schedule(second = "0", minute = "*/2", hour = "*", persistent = false)
 	public void alleZweiMinuten() {

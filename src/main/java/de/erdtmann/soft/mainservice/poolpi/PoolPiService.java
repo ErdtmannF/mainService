@@ -20,10 +20,18 @@ public class PoolPiService {
 //	@Inject
 //	PumpenRepository pumpenRepo;
 	
-	@Inject
-	PoolPiRestClient restClient;
+	
+	private PoolPiRestClient restClient;
 	
 //	PumpenZeitE pumpenZeitE;
+	
+	public PoolPiService() { }
+	
+	@Inject
+	public PoolPiService(PoolPiRestClient restClient) {
+		this.restClient = restClient;
+	}
+	
 	
 	public boolean holePumpenStatus() throws PoolPiException {
 		return (restClient.statusPumpe() == 1);

@@ -14,8 +14,15 @@ public class PoolTimer {
 	
 	Logger log = Logger.getLogger(PoolTimer.class);
 	
+	private PoolService poolService; 
+
+	PoolTimer() { }
+	
 	@Inject
-	PoolService poolService; 
+	PoolTimer(PoolService poolService) {
+		this.poolService = poolService;
+	}
+	
 	
 	@Schedule(second = "0", minute = "*/5", hour = "*", persistent = false)
 	public void alleFuenfMinuten() {

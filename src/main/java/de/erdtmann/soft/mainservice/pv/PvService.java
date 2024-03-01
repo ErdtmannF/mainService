@@ -21,23 +21,29 @@ public class PvService {
 
 	Logger log = Logger.getLogger(PvService.class);
 	
-	@Inject
-	PvModbusClient pvModbusClient;
-	
-	@Inject
-	PvRepository pvRepo;
+	private PvModbusClient pvModbusClient;
+	private PvRepository pvRepo;
 
 	static final String RECHTS = "rechts";
 	static final String LINKS = "links";
 	
-	float leistung;
-	float battStand;
-	String battRichtung = RECHTS;
-	float battLeistung;
-	float home;
-	float netz;
-	String netzRichtung = LINKS;
+	private float leistung;
+	private float battStand;
+	private String battRichtung = RECHTS;
+	private float battLeistung;
+	private float home;
+	private float netz;
+	private String netzRichtung = LINKS;
 
+	public PvService() { }
+	
+	@Inject
+	public PvService(PvModbusClient pvModbusClient,PvRepository pvRepo) {
+		this.pvModbusClient = pvModbusClient;
+		this.pvRepo = pvRepo;
+	}
+	
+	
 	public void speichereDaten() throws PvException {
 		
 		if (pvModbusClient != null) {
@@ -130,13 +136,13 @@ public class PvService {
 		if (pvModbusClient != null) {
 			float pv1 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_1);
 			float pv2 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_2);
-			leistung = pv1 + pv2;
+			this.leistung = pv1 + pv2;
 
-			battStand = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STAND);
+			this.battStand = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STAND);
 
 			float battStrom = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STROM);
 			float battSpannung = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_SPANNUNG);
-			battLeistung = battStrom * battSpannung;
+			this.battLeistung = battStrom * battSpannung;
 			if (battLeistung > 0) {
 				battRichtung = RECHTS;
 			} else {
@@ -146,17 +152,18 @@ public class PvService {
 			float verbrauchBatt = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_BAT);
 			float verbrauchPv = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_PV);
 			float verbrauchGrid = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.VERBRAUCH_VON_NETZ);
-			home = verbrauchBatt + verbrauchGrid + verbrauchPv;
+			this.home = verbrauchBatt + verbrauchGrid + verbrauchPv;
 
-			netz = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.GRID_LEISTUNG);
+			this.netz = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.GRID_LEISTUNG);
 			if (netz > 0) {
-				netzRichtung = LINKS;
+				this.netzRichtung = LINKS;
 
 			} else {
-				netzRichtung = RECHTS;
+				this.netzRichtung = RECHTS;
 			}
 		}
-		PvDaten pvDaten = new PvDaten(leistung, battStand, battRichtung, battLeistung, home, netz, netzRichtung);
+		PvDaten pvDaten = new PvDaten(this.leistung, this.battStand, this.battRichtung, this.battLeistung, this.home, this.netz, this.netzRichtung);
+		
 		return pvDaten;
 	}
 

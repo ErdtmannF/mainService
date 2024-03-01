@@ -1,8 +1,8 @@
 package de.erdtmann.soft.mainservice.core;
 
-import java.util.List;
 
-import javax.ejb.Stateless;
+import java.util.List;
+import javax.enterprise.context.ApplicationScoped;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -13,7 +13,7 @@ import de.erdtmann.soft.mainservice.core.entities.KonfigurationE;
 
 
 
-@Stateless
+@ApplicationScoped
 public class CoreRepository {
 
 	Logger log = Logger.getLogger(CoreRepository.class);

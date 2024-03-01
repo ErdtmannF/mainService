@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 
 import org.jboss.logging.Logger;
@@ -28,13 +27,8 @@ public class PoolService {
 
 	Logger log = Logger.getLogger(PoolService.class);
 
-	@Inject
 	private CoreRepository coreRepo;
-
-	@Inject
 	private PoolPiService poolPi;
-
-	@Inject
 	private PvService pvService;
 
 	private Map<KonfigNames, KonfigurationE> konfiguration;
@@ -45,6 +39,17 @@ public class PoolService {
 	private static final String WERT_AUS = "aus";
 	private static final int SLEEP_TIME = 30000;
 
+	public PoolService() {	}
+	
+	@Inject
+	public PoolService(CoreRepository coreRepo,PoolPiService poolPi,PvService pvService) {
+		this.coreRepo = coreRepo;
+		this.poolPi = poolPi;
+		this.pvService = pvService;
+		ladeKonfiguration();
+	}
+	
+	
 	
 	public void ladeKonfiguration() {
 		List<KonfigurationE> konfigDBWerte = coreRepo.ladeKonfiguration();
@@ -66,7 +71,7 @@ public class PoolService {
 	}
 
 	public void poolSteuerung() {
-		ladeKonfiguration();
+//		ladeKonfiguration();
 		
 		log.info("Pool Automatik: " + isPoolAutomatikEin());
 		
