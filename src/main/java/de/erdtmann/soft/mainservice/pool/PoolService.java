@@ -27,14 +27,14 @@ public class PoolService {
 
 	Logger log = Logger.getLogger(PoolService.class);
 
-	@Inject
-	CoreRepository coreRepo;
+//	@Inject
+	private CoreRepository coreRepo;
 
-	@Inject
-	PoolPiService poolPi;
+//	@Inject
+	private PoolPiService poolPi;
 
-	@Inject
-	PvService pvService;
+//	@Inject
+	private PvService pvService;
 
 	private Map<KonfigNames, KonfigurationE> konfiguration;
 
@@ -44,6 +44,14 @@ public class PoolService {
 	private static final String WERT_AUS = "aus";
 	private static final int SLEEP_TIME = 30000;
 
+	@Inject
+	public PoolService(CoreRepository coreRepo,PoolPiService poolPi,PvService pvService) {
+		this.coreRepo = coreRepo;
+		this.poolPi = poolPi;
+		this.pvService = pvService;
+		ladeKonfiguration();
+	}
+	
 	
 	public void ladeKonfiguration() {
 		List<KonfigurationE> konfigDBWerte = coreRepo.ladeKonfiguration();
@@ -65,7 +73,6 @@ public class PoolService {
 	}
 
 	public void poolSteuerung() {
-		ladeKonfiguration();
 		
 		log.info("Pool Automatik: " + isPoolAutomatikEin());
 		
@@ -128,9 +135,16 @@ public class PoolService {
 						}
 					}
 				}
-			} catch (Exception e) {
-				log.error("Fehler in der PoolSteuerung");
+			} catch (PoolPiException e) {
+				log.error("Poolsteuerung: Fehler beim Schalten");
 				log.error(e.getMessage());
+			} catch (PvException e) {
+				log.error("Poolsteuerung: Fehler beim holen der PV Daten");
+				log.error(e.getMessage());
+			} catch (InterruptedException e) {
+				log.error("Poolsteuerung: Fehler im Thread");
+				log.error(e.getMessage());
+				Thread.currentThread().interrupt();
 			}
 
 		}
