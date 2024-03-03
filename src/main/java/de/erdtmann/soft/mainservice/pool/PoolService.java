@@ -101,19 +101,19 @@ public class PoolService {
 				log.info("BattMin: " + isBattMin);
 				log.info("BattMax: " + isBattMax);
 
-				if (isPvMin && isBattMin) {
+				if (und(isPvMin, isBattMin)) {
 					schaltePumpeAn = true;
-					if (isPvMax && isBattMax) {
+					if (und(isPvMax, isBattMax)) {
 						schalteHeizungAn = true;
 					}
 				}
 
-				if (schaltePumpeAn == isPumpeAn && schalteHeizungAn == isHeizungAn) {
+				if (und(gleich(isPumpeAn, schaltePumpeAn),gleich(isHeizungAn, schalteHeizungAn))) {
 					log.info("Keine Änderung.");
 				} else {
 					log.info("Zustand hat sich geändert.");
 					// Heizung soll eingeschaltet werden
-					if (schalteHeizungAn && !isPoolWinterEin()) {
+					if (und(schalteHeizungAn,!isPoolWinterEin())) {
 						// Pumpe ausschalten wenn an
 						isPumpeAn = schaltePumpeAus(isPumpeAn);
 						// Heizung einschalten wenn aus
@@ -146,6 +146,14 @@ public class PoolService {
 			}
 
 		}
+	}
+
+	private boolean gleich(boolean isPumpeAn, boolean schaltePumpeAn) {
+		return schaltePumpeAn == isPumpeAn;
+	}
+
+	private boolean und(boolean isPvMin, boolean isBattMin) {
+		return isPvMin && isBattMin;
 	}
 
 	public PoolKonfig getPoolDaten() {
