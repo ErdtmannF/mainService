@@ -9,6 +9,7 @@ import org.jboss.logging.Logger;
 
 import de.erdtmann.soft.mainservice.exceptions.PvException;
 import de.erdtmann.soft.mainservice.pv.entities.BattLadungE;
+import de.erdtmann.soft.mainservice.pv.entities.ErzeugungE;
 import de.erdtmann.soft.mainservice.pv.entities.LeistungE;
 import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
 import de.erdtmann.soft.mainservice.pv.modbus.utils.ModbusFloatRegister;
@@ -43,6 +44,48 @@ public class PvService {
 		this.pvRepo = pvRepo;
 	}
 	
+	public void speichereErzeugung() throws PvException {
+		
+		if (pvModbusClient != null) {
+			LocalDateTime zeit = LocalDateTime.now();
+			
+			float taeglich = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TAEGLICHER_ERTRAG);
+			float monatlich = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.MONATLICHER_ERTRAG);
+			float jaehrlich = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.JAEHRLICHER_ERTRAG);
+			float total = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_ERTRAG);
+
+			ErzeugungE taeglicheErzeugung = ErzeugungE.builder()
+														.withTyp(1)
+														.withWert(taeglich)
+														.withZeit(zeit)
+														.build();
+
+			ErzeugungE monatlicheErzeugung = ErzeugungE.builder()
+														.withTyp(2)
+														.withWert(monatlich)
+														.withZeit(zeit)
+														.build();
+
+			ErzeugungE jaehrlicheErzeugung = ErzeugungE.builder()
+														.withTyp(3)
+														.withWert(jaehrlich)
+														.withZeit(zeit)
+														.build();
+
+			ErzeugungE totaleErzeugung = ErzeugungE.builder()
+														.withTyp(4)
+														.withWert(total)
+														.withZeit(zeit)
+														.build();
+
+			pvRepo.speichereErzeugung(taeglicheErzeugung);
+			pvRepo.speichereErzeugung(monatlicheErzeugung);
+			pvRepo.speichereErzeugung(jaehrlicheErzeugung);
+			pvRepo.speichereErzeugung(totaleErzeugung);
+			
+			log.info("PV Erzeugung wurde gespeichert");
+		}
+	}
 	
 	public void speichereDaten() throws PvException {
 		

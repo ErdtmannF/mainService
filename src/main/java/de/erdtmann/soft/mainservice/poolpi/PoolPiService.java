@@ -19,7 +19,7 @@ public class PoolPiService {
 	
 //	@Inject
 //	PumpenRepository pumpenRepo;
-	
+
 	
 	private PoolPiRestClient restClient;
 	

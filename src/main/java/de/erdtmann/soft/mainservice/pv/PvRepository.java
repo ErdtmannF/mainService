@@ -11,6 +11,7 @@ import javax.persistence.Query;
 import org.jboss.logging.Logger;
 
 import de.erdtmann.soft.mainservice.pv.entities.BattLadungE;
+import de.erdtmann.soft.mainservice.pv.entities.ErzeugungE;
 import de.erdtmann.soft.mainservice.pv.entities.LeistungE;
 
 
@@ -26,6 +27,10 @@ public class PvRepository {
 
 	public void speichereLeistung(LeistungE leistung) {
 		em.persist(leistung);	
+	}
+	
+	public void speichereErzeugung(ErzeugungE erzeugung) {
+		em.persist(erzeugung);
 	}
 
 	@SuppressWarnings("unchecked")
