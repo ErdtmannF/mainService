@@ -39,6 +39,19 @@ public class PoolService {
 	private static final String WERT_AUS = "aus";
 	private static final int SLEEP_TIME = 30000;
 
+	private boolean isPumpeAn;
+	private boolean isHeizungAn;
+
+	private boolean isPvMin;
+	private boolean isPvMax;
+
+	private boolean isBattMin;
+	private boolean isBattMax;
+
+	boolean schaltePumpeAn;
+	boolean schalteHeizungAn;
+
+	
 	public PoolService() {	}
 	
 	@Inject
@@ -48,8 +61,6 @@ public class PoolService {
 		this.pvService = pvService;
 		ladeKonfiguration();
 	}
-	
-	
 	
 	public void ladeKonfiguration() {
 		List<KonfigurationE> konfigDBWerte = coreRepo.ladeKonfiguration();
@@ -82,17 +93,7 @@ public class PoolService {
 				log.info("PV Leistung: " + pvDaten.getLeistung());
 				log.info("Batt Ladung: " + pvDaten.getBattLadung());
 				
-				boolean isPumpeAn = holePumpenStatus();
-				boolean isHeizungAn = holeHeizungStatus();
-
-				boolean isPvMin = isPvUeberMin(pvDaten);
-				boolean isPvMax = isPvUeberMax(pvDaten);
-
-				boolean isBattMin = isBattUeberMin(pvDaten);
-				boolean isBattMax = isBattUeberMax(pvDaten);
-
-				boolean schaltePumpeAn = false;
-				boolean schalteHeizungAn = false;
+				initDaten(pvDaten);
 
 				log.info("Pumpe an: " + isPumpeAn);
 				log.info("Heizung an: " + isHeizungAn);
@@ -101,37 +102,14 @@ public class PoolService {
 				log.info("BattMin: " + isBattMin);
 				log.info("BattMax: " + isBattMax);
 
-				if (und(isPvMin, isBattMin)) {
-					schaltePumpeAn = true;
-					if (und(isPvMax, isBattMax)) {
-						schalteHeizungAn = true;
-					}
-				}
+				this.schaltePumpeAn = und(isPvMin, isBattMin);
+				this.schalteHeizungAn = und(isPvMax, isBattMax);
 
-				if (und(gleich(isPumpeAn, schaltePumpeAn),gleich(isHeizungAn, schalteHeizungAn))) {
+				if (und(gleich(isPumpeAn, this.schaltePumpeAn),gleich(isHeizungAn, this.schalteHeizungAn))) {
 					log.info("Keine Änderung.");
 				} else {
 					log.info("Zustand hat sich geändert.");
-					// Heizung soll eingeschaltet werden
-					if (und(schalteHeizungAn,!isPoolWinterEin())) {
-						// Pumpe ausschalten wenn an
-						isPumpeAn = schaltePumpeAus(isPumpeAn);
-						// Heizung einschalten wenn aus
-						isHeizungAn = schalteHeizungEin(isHeizungAn);
-						// Pumpe einschalten wenn aus
-						isPumpeAn = schaltePumpeEin(isPumpeAn);
-						// Heizung soll ausgeschaltet werden
-					} else {
-						// Pumpe ausschalten wenn an
-						isPumpeAn = schaltePumpeAus(isPumpeAn);
-						// Heizung ausschalten wenn an
-						isHeizungAn = schalteHeizungAus(isHeizungAn);
-						// Pumpe soll eingeschaltet werden
-						if (schaltePumpeAn) {
-							// Pumpe einschalten wenn aus
-							isPumpeAn = schaltePumpeEin(isPumpeAn);
-						}
-					}
+					schalteVerbraucher();
 				}
 			} catch (PoolPiException e) {
 				log.error("Poolsteuerung: Fehler beim Schalten");
@@ -146,6 +124,44 @@ public class PoolService {
 			}
 
 		}
+	}
+
+	private void schalteVerbraucher() throws PoolPiException, InterruptedException {
+		// Heizung soll eingeschaltet werden
+		if (und(this.schalteHeizungAn,!isPoolWinterEin())) {
+			// Pumpe ausschalten wenn an
+			this.isPumpeAn = schaltePumpeAus(this.isPumpeAn);
+			// Heizung einschalten wenn aus
+			this.isHeizungAn = schalteHeizungEin(this.isHeizungAn);
+			// Pumpe einschalten wenn aus
+			this.isPumpeAn = schaltePumpeEin(this.isPumpeAn);
+			// Heizung soll ausgeschaltet werden
+		} else {
+			// Pumpe ausschalten wenn an
+			this.isPumpeAn = schaltePumpeAus(this.isPumpeAn);
+			// Heizung ausschalten wenn an
+			this.isHeizungAn = schalteHeizungAus(this.isHeizungAn);
+			// Pumpe soll eingeschaltet werden
+			if (this.schaltePumpeAn) {
+				// Pumpe einschalten wenn aus
+				this.isPumpeAn = schaltePumpeEin(this.isPumpeAn);
+			}
+		}
+	}
+
+	// Initialisierung der Daten fuer die Pool-Steuerung
+	private void initDaten(PvDaten pvDaten) throws PoolPiException, PvException {
+		this.isPumpeAn = holePumpenStatus();
+		this.isHeizungAn = holeHeizungStatus();
+
+		this.isPvMin = isPvUeberMin(pvDaten);
+		this.isPvMax = isPvUeberMax(pvDaten);
+
+		this.isBattMin = isBattUeberMin(pvDaten);
+		this.isBattMax = isBattUeberMax(pvDaten);
+
+		this.schaltePumpeAn = false;
+		this.schalteHeizungAn = false;
 	}
 
 	private boolean gleich(boolean isPumpeAn, boolean schaltePumpeAn) {
