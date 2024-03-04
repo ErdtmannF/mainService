@@ -54,29 +54,13 @@ public class PvService {
 			float jaehrlich = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.JAEHRLICHER_ERTRAG);
 			float total = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_ERTRAG);
 
-			ErzeugungE taeglicheErzeugung = ErzeugungE.builder()
-														.withTyp(1)
-														.withWert(taeglich)
-														.withZeit(zeit)
-														.build();
+			ErzeugungE taeglicheErzeugung = new ErzeugungE(taeglich, zeit, 1);
 
-			ErzeugungE monatlicheErzeugung = ErzeugungE.builder()
-														.withTyp(2)
-														.withWert(monatlich)
-														.withZeit(zeit)
-														.build();
+			ErzeugungE monatlicheErzeugung = new ErzeugungE(monatlich, zeit, 2);
 
-			ErzeugungE jaehrlicheErzeugung = ErzeugungE.builder()
-														.withTyp(3)
-														.withWert(jaehrlich)
-														.withZeit(zeit)
-														.build();
+			ErzeugungE jaehrlicheErzeugung = new ErzeugungE(jaehrlich, zeit, 3);
 
-			ErzeugungE totaleErzeugung = ErzeugungE.builder()
-														.withTyp(4)
-														.withWert(total)
-														.withZeit(zeit)
-														.build();
+			ErzeugungE totaleErzeugung = new ErzeugungE(total, zeit, 4);
 
 			pvRepo.speichereErzeugung(taeglicheErzeugung);
 			pvRepo.speichereErzeugung(monatlicheErzeugung);
@@ -99,53 +83,21 @@ public class PvService {
 			float pvString2 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_2);
 			float battLadeStand = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STAND);
 			
-			LeistungE verbrauchBatt = LeistungE.builder()
-												.withTyp(1)
-												.withWert(checkWert(verbrauchVonBatt))
-												.withZeit(zeit)
-												.build();
+			LeistungE verbrauchBatt = new LeistungE(checkWert(verbrauchVonBatt),zeit,1);
 	
-			LeistungE verbrauchPv = LeistungE.builder()
-												.withTyp(2)
-												.withWert(checkWert(verbrauchVonPv))
-												.withZeit(zeit)
-												.build();
+			LeistungE verbrauchPv = new LeistungE(checkWert(verbrauchVonPv),zeit,2);
 	
-			LeistungE verbrauchGrid = LeistungE.builder()
-												.withTyp(3)
-												.withWert(checkWert(verbrauchVonNetz))
-												.withZeit(zeit)
-												.build();
+			LeistungE verbrauchGrid = new LeistungE(checkWert(verbrauchVonNetz),zeit,3);
 	
-			LeistungE pvLeistung1 = LeistungE.builder()
-												.withTyp(4)
-												.withWert(checkWert(pvString1))
-												.withZeit(zeit)
-												.build();
+			LeistungE pvLeistung1 = new LeistungE(checkWert(pvString1),zeit,4);
 			
-			LeistungE pvLeistung2 = LeistungE.builder()
-												.withTyp(5)
-												.withWert(checkWert(pvString2))
-												.withZeit(zeit)
-												.build();
+			LeistungE pvLeistung2 = new LeistungE(checkWert(pvString2),zeit,5);
 			
-			LeistungE pvLeistung = LeistungE.builder()
-												.withTyp(6)
-												.withWert(checkWert(pvString1 + pvString2))
-												.withZeit(zeit)
-												.build();
+			LeistungE pvLeistung = new LeistungE(checkWert(pvString1 + pvString2),zeit,6);
 			
-			LeistungE pvOhneVerbrauch = LeistungE.builder()
-												.withTyp(7)
-												.withWert(checkWert((pvString1 + pvString2) - verbrauchVonPv))
-												.withZeit(zeit)
-												.build();
+			LeistungE pvOhneVerbrauch = new LeistungE(checkWert((pvString1 + pvString2) - verbrauchVonPv),zeit,7);
 	
-			LeistungE hausverbrauchGesamt = LeistungE.builder()
-												.withTyp(8)
-												.withWert(checkWert(verbrauchVonBatt) + checkWert(verbrauchVonPv) + checkWert(verbrauchVonNetz))
-												.withZeit(zeit)
-												.build();
+			LeistungE hausverbrauchGesamt = new LeistungE(checkWert(verbrauchVonBatt) + checkWert(verbrauchVonPv) + checkWert(verbrauchVonNetz),zeit,8);
 	
 			
 			pvRepo.speichereLeistung(verbrauchPv);
@@ -157,10 +109,7 @@ public class PvService {
 			pvRepo.speichereLeistung(pvOhneVerbrauch);
 			pvRepo.speichereLeistung(hausverbrauchGesamt);
 			
-			BattLadungE battLadung = BattLadungE.builder()
-												.withWert(battLadeStand)
-												.withZeit(zeit)
-												.build();
+			BattLadungE battLadung = new BattLadungE(battLadeStand,zeit);
 			
 			pvRepo.speichereBattLadung(battLadung);
 			

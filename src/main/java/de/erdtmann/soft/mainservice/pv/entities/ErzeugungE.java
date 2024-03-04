@@ -23,16 +23,10 @@ public class ErzeugungE implements Serializable {
 	private LocalDateTime zeit;
 	private int typ;
 	
-	protected ErzeugungE() { }
-	
-	private ErzeugungE(Builder builder) {
-		setWert(builder.wert);
-		setZeit(builder.zeit);
-		setTyp(builder.typ);
-	}
-	
-	public static Builder builder() {
-		return new Builder();
+	public ErzeugungE(float wert, LocalDateTime zeit, int typ) {
+		setWert(wert);
+		setZeit(zeit);
+		setTyp(typ);
 	}
 
 	public int getId() {
@@ -60,31 +54,4 @@ public class ErzeugungE implements Serializable {
 		this.typ = typ;
 	}
 	
-	public static final class Builder {
-		private float wert;
-		private LocalDateTime zeit;
-		private int typ;
-
-		private Builder() {
-		}
-
-		public Builder withWert(float wert) {
-			this.wert = wert;
-			return this;
-		}
-		
-		public Builder withZeit(LocalDateTime zeit) {
-			this.zeit = zeit;
-			return this;
-		}
-
-		public Builder withTyp(int typ) {
-			this.typ = typ;
-			return this;
-		}
-
-		public ErzeugungE build() {
-			return new ErzeugungE(this);
-		}
-	}
 }

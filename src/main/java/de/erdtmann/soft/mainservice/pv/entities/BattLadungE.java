@@ -1,7 +1,7 @@
 package de.erdtmann.soft.mainservice.pv.entities;
 
-import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.io.Serializable;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,17 +27,11 @@ public class BattLadungE implements Serializable {
 	private float wert;
 	private LocalDateTime zeit;
 	
-	protected BattLadungE() { }
-	
-	private BattLadungE(Builder builder) {
-		setWert(builder.wert);
-		setZeit(builder.zeit);
+	public BattLadungE(float wert,LocalDateTime zeit) {
+		this.wert = wert;
+		this.zeit = zeit;
 	}
 	
-	public static Builder builder() {
-		return new Builder();
-	}
-
 	public int getId() {
 		return id;
 	}
@@ -55,28 +49,6 @@ public class BattLadungE implements Serializable {
 	}
 	public void setZeit(LocalDateTime zeit) {
 		this.zeit = zeit;
-	}
-	
-	public static final class Builder {
-		private float wert;
-		private LocalDateTime zeit;
-
-		private Builder() {
-		}
-
-		public Builder withWert(float wert) {
-			this.wert = wert;
-			return this;
-		}
-		
-		public Builder withZeit(LocalDateTime zeit) {
-			this.zeit = zeit;
-			return this;
-		}
-
-		public BattLadungE build() {
-			return new BattLadungE(this);
-		}
 	}
 
 }
