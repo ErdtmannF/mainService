@@ -8,9 +8,9 @@ import javax.inject.Inject;
 import org.jboss.logging.Logger;
 
 import de.erdtmann.soft.mainservice.exceptions.PvException;
-import de.erdtmann.soft.mainservice.pv.entities.BattLadungE;
-import de.erdtmann.soft.mainservice.pv.entities.ErzeugungE;
-import de.erdtmann.soft.mainservice.pv.entities.LeistungE;
+import de.erdtmann.soft.mainservice.pv.entities.BattLadung;
+import de.erdtmann.soft.mainservice.pv.entities.PvErzeugung;
+import de.erdtmann.soft.mainservice.pv.entities.PvLeistung;
 import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
 import de.erdtmann.soft.mainservice.pv.modbus.utils.ModbusFloatRegister;
 import de.erdtmann.soft.utils.pv.PvDaten;
@@ -54,13 +54,13 @@ public class PvService {
 			float jaehrlich = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.JAEHRLICHER_ERTRAG);
 			float total = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_ERTRAG);
 
-			ErzeugungE taeglicheErzeugung = new ErzeugungE(taeglich, zeit, 1);
+			PvErzeugung taeglicheErzeugung = new PvErzeugung(taeglich, zeit, 1);
 
-			ErzeugungE monatlicheErzeugung = new ErzeugungE(monatlich, zeit, 2);
+			PvErzeugung monatlicheErzeugung = new PvErzeugung(monatlich, zeit, 2);
 
-			ErzeugungE jaehrlicheErzeugung = new ErzeugungE(jaehrlich, zeit, 3);
+			PvErzeugung jaehrlicheErzeugung = new PvErzeugung(jaehrlich, zeit, 3);
 
-			ErzeugungE totaleErzeugung = new ErzeugungE(total, zeit, 4);
+			PvErzeugung totaleErzeugung = new PvErzeugung(total, zeit, 4);
 
 			pvRepo.speichereErzeugung(taeglicheErzeugung);
 			pvRepo.speichereErzeugung(monatlicheErzeugung);
@@ -83,21 +83,21 @@ public class PvService {
 			float pvString2 = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.DC_W_2);
 			float battLadeStand = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.BATT_STAND);
 			
-			LeistungE verbrauchBatt = new LeistungE(checkWert(verbrauchVonBatt),zeit,1);
+			PvLeistung verbrauchBatt = new PvLeistung(checkWert(verbrauchVonBatt),zeit,1);
 	
-			LeistungE verbrauchPv = new LeistungE(checkWert(verbrauchVonPv),zeit,2);
+			PvLeistung verbrauchPv = new PvLeistung(checkWert(verbrauchVonPv),zeit,2);
 	
-			LeistungE verbrauchGrid = new LeistungE(checkWert(verbrauchVonNetz),zeit,3);
+			PvLeistung verbrauchGrid = new PvLeistung(checkWert(verbrauchVonNetz),zeit,3);
 	
-			LeistungE pvLeistung1 = new LeistungE(checkWert(pvString1),zeit,4);
+			PvLeistung pvLeistung1 = new PvLeistung(checkWert(pvString1),zeit,4);
 			
-			LeistungE pvLeistung2 = new LeistungE(checkWert(pvString2),zeit,5);
+			PvLeistung pvLeistung2 = new PvLeistung(checkWert(pvString2),zeit,5);
 			
-			LeistungE pvLeistung = new LeistungE(checkWert(pvString1 + pvString2),zeit,6);
+			PvLeistung pvLeistung = new PvLeistung(checkWert(pvString1 + pvString2),zeit,6);
 			
-			LeistungE pvOhneVerbrauch = new LeistungE(checkWert((pvString1 + pvString2) - verbrauchVonPv),zeit,7);
+			PvLeistung pvOhneVerbrauch = new PvLeistung(checkWert((pvString1 + pvString2) - verbrauchVonPv),zeit,7);
 	
-			LeistungE hausverbrauchGesamt = new LeistungE(checkWert(verbrauchVonBatt) + checkWert(verbrauchVonPv) + checkWert(verbrauchVonNetz),zeit,8);
+			PvLeistung hausverbrauchGesamt = new PvLeistung(checkWert(verbrauchVonBatt) + checkWert(verbrauchVonPv) + checkWert(verbrauchVonNetz),zeit,8);
 	
 			
 			pvRepo.speichereLeistung(verbrauchPv);
@@ -109,7 +109,7 @@ public class PvService {
 			pvRepo.speichereLeistung(pvOhneVerbrauch);
 			pvRepo.speichereLeistung(hausverbrauchGesamt);
 			
-			BattLadungE battLadung = new BattLadungE(battLadeStand,zeit);
+			BattLadung battLadung = new BattLadung(battLadeStand,zeit);
 			
 			pvRepo.speichereBattLadung(battLadung);
 			

@@ -1,26 +1,24 @@
 package de.erdtmann.soft.mainservice.pv.entities;
 
-import java.time.LocalDateTime;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
-public abstract class WertE {
+@Entity
+public abstract class PV_DATEN  implements Serializable {
+
+	private static final long serialVersionUID = -3334238962038277868L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private float wert;
 	private LocalDateTime zeit;
-	
-	protected WertE() {}
-	
-	protected WertE(float wert,LocalDateTime zeit) {
-		setWert(wert);
-		setZeit(zeit);
-	}
-	
+
 	public int getId() {
 		return id;
 	}
