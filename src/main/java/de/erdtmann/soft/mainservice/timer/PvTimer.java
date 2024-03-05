@@ -35,7 +35,7 @@ public class PvTimer {
 		}
 	}
 
-	@Schedule(second = "0", minute = "45", hour = "23", persistent = false)
+	@Schedule(second = "0", minute = "30", hour = "23", persistent = false)
 	public void einmalProTag() {
 		try {
 			pvService.speichereErzeugung();

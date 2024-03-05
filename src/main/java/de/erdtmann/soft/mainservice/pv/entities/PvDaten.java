@@ -7,9 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Table;
 
 @Entity
-public abstract class PV_DATEN  implements Serializable {
+@Table(name = "PV_DATEN")
+public abstract class PvDaten  implements Serializable {
 
 	private static final long serialVersionUID = -3334238962038277868L;
 

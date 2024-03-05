@@ -9,11 +9,13 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "PV_ERZEUGUNG")
-public class PvErzeugung extends PV_DATEN implements Serializable {
+public class PvErzeugung extends PvDaten implements Serializable {
 
 	private static final long serialVersionUID = -1871435847950063194L;
 	
 	private int typ;
+	
+	PvErzeugung() {}
 	
 	public PvErzeugung(float wert, LocalDateTime zeit, int typ) {
 		setWert(wert);
