@@ -62,12 +62,10 @@
 				<version>4.2.1.Final</version>
 				<configuration>
 					<id>wildfly-srv</id>
-					<username>wildfly</username>
-					<password>s36.182c1h4v</password>
 					<hostname>ubuntuserver</hostname>
 					<port>9990</port>
 					<server-args>
-						<server-arg>-Djboss.server.base.dir=/opt/WildFly/standalone/</server-arg>
+						<server-arg>-Djboss.server.base.dir=/opt/WildFly/standalone/ -DrepositoryId=wildfly-srv</server-arg>
 					</server-args>
 				</configuration>
 				<executions>
