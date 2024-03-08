@@ -39,6 +39,7 @@ public class PvTimer {
 	public void einmalProTag() {
 		try {
 			pvService.speichereErzeugung();
+			pvService.speichereTotalVerbrauch();
 		} catch (PvException e) {
 			log.error("Fehler beim Speichern der Erzeugungsdaten");
 			log.error(e.getMessage());

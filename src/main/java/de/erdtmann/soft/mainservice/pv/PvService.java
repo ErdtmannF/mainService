@@ -11,6 +11,7 @@ import de.erdtmann.soft.mainservice.exceptions.PvException;
 import de.erdtmann.soft.mainservice.pv.entities.BattLadung;
 import de.erdtmann.soft.mainservice.pv.entities.PvErzeugung;
 import de.erdtmann.soft.mainservice.pv.entities.PvLeistung;
+import de.erdtmann.soft.mainservice.pv.entities.PvVerbrauch;
 import de.erdtmann.soft.mainservice.pv.modbus.PvModbusClient;
 import de.erdtmann.soft.mainservice.pv.modbus.utils.ModbusFloatRegister;
 import de.erdtmann.soft.utils.pv.PvDaten;
@@ -68,6 +69,29 @@ public class PvService {
 			pvRepo.speichereErzeugung(totaleErzeugung);
 			
 			log.info("PV Erzeugung wurde gespeichert");
+		}
+	}
+	
+	public void speichereTotalVerbrauch() throws PvException {
+		
+		if(pvModbusClient != null) {
+			LocalDateTime zeit = LocalDateTime.now();
+			
+			float totalVerbrauchBatt = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VON_BATT);
+			float totalVerbrauchNetz = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VON_NETZ);
+			float totalVerbrauchPv = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VON_PV);
+			float totalVerbrauch = pvModbusClient.holeModbusRegisterFloat(ModbusFloatRegister.TOTAL_VERBRAUCH);
+			
+			PvVerbrauch verbrauchBatt = new PvVerbrauch(totalVerbrauchBatt, zeit, 1);
+			PvVerbrauch verbrauchPv = new PvVerbrauch(totalVerbrauchPv, zeit, 2);
+			PvVerbrauch verbrauchNetz = new PvVerbrauch(totalVerbrauchNetz, zeit, 3);
+			PvVerbrauch verbrauch = new PvVerbrauch(totalVerbrauch, zeit, 8);
+			
+			pvRepo.speichereVerbrauch(verbrauchBatt);
+			pvRepo.speichereVerbrauch(verbrauchPv);
+			pvRepo.speichereVerbrauch(verbrauchNetz);
+			pvRepo.speichereVerbrauch(verbrauch);
+			
 		}
 	}
 	

@@ -13,6 +13,7 @@ import org.jboss.logging.Logger;
 import de.erdtmann.soft.mainservice.pv.entities.BattLadung;
 import de.erdtmann.soft.mainservice.pv.entities.PvErzeugung;
 import de.erdtmann.soft.mainservice.pv.entities.PvLeistung;
+import de.erdtmann.soft.mainservice.pv.entities.PvVerbrauch;
 
 
 
@@ -31,6 +32,10 @@ public class PvRepository {
 	
 	public void speichereErzeugung(PvErzeugung erzeugung) {
 		em.persist(erzeugung);
+	}
+	
+	public void speichereVerbrauch(PvVerbrauch verbrauch) {
+		em.persist(verbrauch);
 	}
 
 	@SuppressWarnings("unchecked")

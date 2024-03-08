@@ -5,17 +5,16 @@ import java.time.LocalDateTime;
 
 import javax.persistence.Entity;
 
-
 @Entity
-public class PvErzeugung extends PvDaten implements Serializable {
+public class PvVerbrauch extends PvDaten implements Serializable {
 
-	private static final long serialVersionUID = -1871435847950063194L;
+	private static final long serialVersionUID = -7401100261934643532L;
 	
 	private int typ;
 	
-	PvErzeugung() {}
+	PvVerbrauch() {}
 	
-	public PvErzeugung(float wert, LocalDateTime zeit, int typ) {
+	public PvVerbrauch(float wert, LocalDateTime zeit, int typ) {
 		setWert(wert);
 		setZeit(zeit);
 		setTyp(typ);
@@ -28,4 +27,6 @@ public class PvErzeugung extends PvDaten implements Serializable {
 		this.typ = typ;
 	}
 
+
+	
 }

@@ -4,7 +4,6 @@ import java.time.LocalDateTime;
 import java.io.Serializable;
 
 import javax.persistence.Entity;
-import javax.persistence.NamedNativeQuery;
 
 //@NamedNativeQuery(
 //		name="Batterie.holeLadungByTag",
